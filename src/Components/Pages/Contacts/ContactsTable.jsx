@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Plus, Filter } from "lucide-react";
+import { Plus, Filter, Trash2 } from "lucide-react";
 import dayjs from "dayjs";
 import {
   Table,
@@ -18,7 +18,14 @@ import {
   CircularProgress,
   Typography,
   Box,
+  Checkbox,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import CreateContactModal from "./CreateContactModal";
 
 const PAGE_SIZE_OPTIONS = [25, 50, 100];
@@ -29,73 +36,100 @@ const ContactsTable = ({ token }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
   const [loading, setLoading] = useState(true);
-  const [open, setOpen] = useState(false);
+  const [openCreate, setOpenCreate] = useState(false);
+  const [selectedContacts, setSelectedContacts] = useState([]);
+  const [openDelete, setOpenDelete] = useState(false);
+  const [verificationText, setVerificationText] = useState("");
 
-  const handleSave = async (contactData) => {
+  const navigate = useNavigate();
+
+  // Fetch contacts
+  const fetchContacts = async () => {
+    setLoading(true);
     try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/contacts/`, // 👈 API base URL from .env
-        contactData,
-        { headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` } }
+      const res = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/contacts?page=${currentPage}&limit=${pageSize}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
       );
-      console.log("✅ Contact created:", response.data);
-
-      // Optionally refresh your contact list here
-      // fetchContacts();
-    } catch (error) {
-      console.error("❌ Error creating contact:", error.response?.data || error.message);
+      const contactsData = res.data.contacts || [];
+      setContacts(contactsData);
+      setFiltered(contactsData);
+    } catch (err) {
+      console.error("Error fetching contacts:", err);
+    } finally {
+      setLoading(false);
     }
   };
+  console.log("contacts", token);
 
   useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_API_URL}/api/contacts?page=${currentPage}&limit=${pageSize}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      })
-      .then((res) => {
-        const contactsData = res?.data?.contacts || [];
-        setContacts(contactsData);
-        setFiltered(contactsData);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Error fetching contacts:", err);
-        setLoading(false);
+    fetchContacts();
+  }, [currentPage, pageSize]);
+
+  // Handle contact creation
+  const handleSave = async (contactData) => {
+    try {
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/contacts/`, contactData, {
+        headers: { Authorization: `Bearer ${token}` },
       });
-  }, [currentPage, pageSize, token]);
+      fetchContacts(); // refresh after create
+    } catch (err) {
+      console.error("Error creating contact:", err);
+    }
+  };
 
   const totalPages = Math.ceil(filtered.length / pageSize);
   const paginatedData = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
+  // Sorting by date
   const handleFilterByDate = (field) => {
     const sorted = [...filtered].sort((a, b) => new Date(b[field]) - new Date(a[field]));
     setFiltered(sorted);
   };
 
+  // Checkbox logic
+  const handleSelectAll = (e) => {
+    if (e.target.checked) {
+      setSelectedContacts(paginatedData.map((c) => c._id));
+    } else {
+      setSelectedContacts([]);
+    }
+  };
+
+  const handleSelectOne = (id) => {
+    setSelectedContacts((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
+  };
+
+  // Batch delete
+  console.log("selectedcontact", selectedContacts);
+  const handleDelete = async () => {
+    try {
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/contacts/batch-delete`, {
+        data: { ids: selectedContacts },
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setOpenDelete(false);
+      setSelectedContacts([]);
+      fetchContacts();
+    } catch (err) {
+      console.error("Error deleting contacts:", err);
+    }
+  };
+
   return (
     <Box>
-      {/* <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
         <Typography variant="h5" fontWeight="bold">
           Contacts
         </Typography>
-        <Button variant="contained" color="success" startIcon={<Plus size={16} />}>
+        <Button variant="contained" color="success" startIcon={<Plus size={16} />} onClick={() => setOpenCreate(true)}>
           Create Contact
         </Button>
-      </Box> */}
-      <>
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-          <Typography variant="h5" fontWeight="bold">
-            Contacts
-          </Typography>
-          <Button variant="contained" color="success" startIcon={<Plus size={16} />} onClick={() => setOpen(true)}>
-            Create Contact
-          </Button>
-        </Box>
-        <CreateContactModal open={open} onClose={() => setOpen(false)} onSave={handleSave} />
-      </>
+      </Box>
+
+      <CreateContactModal open={openCreate} onClose={() => setOpenCreate(false)} onSave={handleSave} />
 
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
         <Box display="flex" gap={1}>
@@ -106,85 +140,89 @@ const ContactsTable = ({ token }) => {
             Updated Date
           </Button>
         </Box>
+        {selectedContacts.length > 0 && (
+          <Button
+            variant="contained"
+            color="error"
+            startIcon={<Trash2 size={16} />}
+            onClick={() => setOpenDelete(true)}
+          >
+            Delete ({selectedContacts.length})
+          </Button>
+        )}
       </Box>
 
-      {/* <TableContainer component={Paper} sx={{ maxHeight: 400 }}>
-        <Table stickyHeader size="small">
-          <TableHead>
-            <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Phone</TableCell>
-              <TableCell>Position</TableCell>
-              <TableCell>Created At</TableCell>
-              <TableCell>Updated At</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {loading ? (
-              <TableRow>
-                <TableCell colSpan={6} align="center">
-                  <CircularProgress size={24} />
-                </TableCell>
-              </TableRow>
-            ) : paginatedData.length > 0 ? (
-              paginatedData.map((contact) => (
-                <TableRow key={contact._id} hover>
-                  <TableCell>{contact.firstName} {contact.lastName}</TableCell>
-                  <TableCell>{contact.email || "--"}</TableCell>
-                  <TableCell>{contact.phone || "--"}</TableCell>
-                  <TableCell>{contact.position || "--"}</TableCell>
-                  <TableCell>{dayjs(contact.createdAt).format("MMM D, YYYY h:mm A")}</TableCell>
-                  <TableCell>{dayjs(contact.updatedAt).format("MMM D, YYYY h:mm A")}</TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={6} align="center">No contacts found.</TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer> */}
-      <Box sx={{ height: 400, overflow: "auto" }}>
-        <TableContainer component={Paper} sx={contacts.length > 0 ? { maxHeight: 100 } : { height: 400 }}>
-          <Table stickyHeader size="small" sx={{ height: "100%", tableLayout: "fixed" }}>
+      <Box
+        sx={{
+          height: "100%", // full height of parent
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        <TableContainer
+          component={Paper}
+          sx={{
+            flex: 1, // takes remaining height
+            overflowY: "auto", // scroll when content overflows
+          }}
+          //sx={{ maxHeight: 400 }}
+        >
+          <Table stickyHeader size="small">
             <TableHead>
               <TableRow>
-                <TableCell sx={{ width: 160 }}>Name</TableCell>
-                <TableCell sx={{ width: 220 }}>Email</TableCell>
-                <TableCell sx={{ width: 140 }}>Phone</TableCell>
-                <TableCell sx={{ width: 160 }}>Position</TableCell>
-                <TableCell sx={{ width: 180 }}>Created At</TableCell>
-                <TableCell sx={{ width: 180 }}>Updated At</TableCell>
+                <TableCell padding="checkbox">
+                  <Checkbox
+                    checked={selectedContacts.length === paginatedData.length && paginatedData.length > 0}
+                    onChange={handleSelectAll}
+                  />
+                </TableCell>
+                <TableCell>Name</TableCell>
+                <TableCell>Email</TableCell>
+                <TableCell>Phone</TableCell>
+                <TableCell>Position</TableCell>
+                <TableCell>Created At</TableCell>
+                <TableCell>Updated At</TableCell>
               </TableRow>
             </TableHead>
-            <TableBody sx={{ minHeight: "300px", position: "relative" }}>
+            <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={6} align="center">
+                  <TableCell colSpan={7} align="center">
                     <CircularProgress size={24} />
                   </TableCell>
                 </TableRow>
               ) : paginatedData.length > 0 ? (
                 paginatedData.map((contact) => (
-                  <TableRow key={contact._id} hover>
-                    <TableCell sx={{ width: 160 }}>
+                  <TableRow
+                    key={contact._id}
+                    hover
+                    onClick={(e) => {
+                      // prevent row click if checkbox clicked
+                      if (e.target.type !== "checkbox") navigate(`/contact/${contact._id}`);
+                    }}
+                    sx={{ cursor: "pointer" }}
+                  >
+                    <TableCell padding="checkbox">
+                      <Checkbox
+                        checked={selectedContacts.includes(contact._id)}
+                        onChange={() => handleSelectOne(contact._id)}
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    </TableCell>
+                    <TableCell>
                       {contact.firstName} {contact.lastName}
                     </TableCell>
-                    <TableCell sx={{ width: 220 }}>{contact.email || "--"}</TableCell>
-                    <TableCell sx={{ width: 140 }}>{contact.phone || "--"}</TableCell>
-                    <TableCell sx={{ width: 160 }}>{contact.position || "--"}</TableCell>
-                    <TableCell sx={{ width: 180 }}>{dayjs(contact.createdAt).format("MMM D, YYYY h:mm A")}</TableCell>
-                    <TableCell sx={{ width: 180 }}>{dayjs(contact.updatedAt).format("MMM D, YYYY h:mm A")}</TableCell>
+                    <TableCell>{contact.email || "--"}</TableCell>
+                    <TableCell>{contact.phone || "--"}</TableCell>
+                    <TableCell>{contact.position || "--"}</TableCell>
+                    <TableCell>{dayjs(contact.createdAt).format("MMM D, YYYY h:mm A")}</TableCell>
+                    <TableCell>{dayjs(contact.updatedAt).format("MMM D, YYYY h:mm A")}</TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={6} sx={contacts.length > 0 ? { maxHeight: 100 } : { height: 400 }}>
-                    <Box display="flex" justifyContent="center" alignItems="center" height="300px">
-                      <div className="flex justify-center items-center h-[300px] text-green-700 text-lg font-medium"></div>
-                    </Box>
+                  <TableCell colSpan={7} align="center">
+                    No contacts found.
                   </TableCell>
                 </TableRow>
               )}
@@ -193,11 +231,11 @@ const ContactsTable = ({ token }) => {
         </TableContainer>
       </Box>
 
+      {/* Pagination */}
       <Box display="flex" justifyContent="space-between" alignItems="center" mt={2} fontSize={14}>
         <Typography>
           Showing {paginatedData.length} of {filtered.length} contacts
         </Typography>
-
         <Box display="flex" alignItems="center" gap={1}>
           <Button
             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
@@ -219,7 +257,7 @@ const ContactsTable = ({ token }) => {
             Next
           </Button>
         </Box>
-        <FormControl size="=small" sx={{ minWidth: 90 }}>
+        <FormControl size="small" sx={{ minWidth: 90 }}>
           <InputLabel>Page size</InputLabel>
           <Select
             value={pageSize}
@@ -237,6 +275,27 @@ const ContactsTable = ({ token }) => {
           </Select>
         </FormControl>
       </Box>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={openDelete} onClose={() => setOpenDelete(false)}>
+        <DialogTitle>Delete Contacts</DialogTitle>
+        <DialogContent>
+          <Typography>Type DELETE to confirm deletion of selected contacts:</Typography>
+          <TextField
+            autoFocus
+            margin="dense"
+            fullWidth
+            value={verificationText}
+            onChange={(e) => setVerificationText(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenDelete(false)}>Cancel</Button>
+          <Button color="error" onClick={handleDelete} disabled={verificationText !== "DELETE"}>
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

@@ -101,9 +101,9 @@ export default function CreateContactModal({ open, onClose, onSave }) {
           <Grid item xs={6}>
             <TextField fullWidth label="Position" name="position" value={formData.position} onChange={handleChange} />
           </Grid>
-          <Grid item xs={6}>
+          {/* <Grid item xs={6}>
             <TextField fullWidth label="Company" name="company" value={formData.company} onChange={handleChange} />
-          </Grid>
+          </Grid> */}
         </Grid>
       </DialogContent>
 
