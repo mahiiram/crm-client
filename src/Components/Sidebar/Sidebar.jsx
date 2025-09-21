@@ -1,15 +1,6 @@
 // components/Sidebar.jsx
 
-import {
-  Users,
-  Building,
-  Briefcase,
-  ShoppingCart,
-  Package,
-  Settings,
-  User,
-  LayoutDashboard
-} from "lucide-react";
+import { Users, Building, Briefcase, ShoppingCart, Package, Settings, User, LayoutDashboard } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useSelector } from "react-redux";
 

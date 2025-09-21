@@ -3,9 +3,9 @@ import { Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 const PublicRoute = ({ children }) => {
-  const { token, loading } = useSelector((state) => state.auth);
+  const { token, status } = useSelector((state) => state.auth);
 
-  if (loading) {
+  if (status === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-green-400 to-blue-500">
         <div className="text-center">

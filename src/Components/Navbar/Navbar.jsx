@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { Moon, Sun, User, PlusCircle, LogOut, Settings, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../../features/auth/authSlice";
 
 export default function Navbar() {
   const [darkMode, setDarkMode] = useState(false);
@@ -15,7 +16,7 @@ export default function Navbar() {
   const [showDropdown, setShowDropdown] = useState(false);
   const [loading, setLoading] = useState(false);
   const token = useSelector((state) => state.auth.token);
-
+  const dispatch = useDispatch();
   // Toggle dark mode
   useEffect(() => {
     const saved = localStorage.getItem("darkMode");
@@ -42,8 +43,8 @@ export default function Navbar() {
   }, []);
 
   const handleSignOut = () => {
-    sessionStorage.clear();
-    navigate("/");
+    dispatch(logout()); // clears Redux state + sessionStorage
+    navigate("/"); // redirect to login
   };
 
   const handleSearch = async (e) => {

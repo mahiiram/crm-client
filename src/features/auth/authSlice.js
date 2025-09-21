@@ -40,7 +40,7 @@ export const checkResetSession = createAsyncThunk("auth/checkResetSession", asyn
     return rejectWithValue(err.response?.data?.error || err.message || "Session expired!");
   }
 });
-
+export const resetAuth = () => ({ type: "auth/reset" });
 // Load state from session storage if exists
 const savedAuth = JSON.parse(sessionStorage.getItem("authState")) || null;
 
@@ -56,7 +56,16 @@ const initialState = savedAuth || {
 const authSlice = createSlice({
   name: "auth",
   initialState,
-  reducers: {},
+  reducers: {
+    reset: (state) => {
+      state.user = null;
+      state.portal = null;
+      state.token = null;
+      state.status = "idle";
+      state.error = null;
+      sessionStorage.removeItem("authState");
+    },
+  },
   extraReducers: (builder) => {
     builder
       // Login
