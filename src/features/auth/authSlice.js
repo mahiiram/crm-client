@@ -1,6 +1,6 @@
 // src/store/slices/authSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { loginApi, registerApi } from "../auth/auth.js";
+import { checkResetSessionApi, loginApi, registerApi } from "../auth/auth.js";
 
 // Login Thunk
 export const login = createAsyncThunk("auth/login", async (credentials, { rejectWithValue }) => {
@@ -30,6 +30,16 @@ export const logout = createAsyncThunk("auth/logout", async () => {
   await new Promise((resolve) => setTimeout(resolve, 100));
   return true;
 });
+// Reset session Thunk
+
+export const checkResetSession = createAsyncThunk("auth/checkResetSession", async (_, { rejectWithValue }) => {
+  try {
+    const data = await checkResetSessionApi();
+    return data;
+  } catch (err) {
+    return rejectWithValue(err.response?.data?.error || err.message || "Session expired!");
+  }
+});
 
 // Load state from session storage if exists
 const savedAuth = JSON.parse(sessionStorage.getItem("authState")) || null;
@@ -40,6 +50,7 @@ const initialState = savedAuth || {
   token: null,
   status: "idle",
   error: null,
+  resetSession: null,
 };
 
 const authSlice = createSlice({
@@ -105,6 +116,20 @@ const authSlice = createSlice({
         state.status = "idle";
         state.error = null;
         sessionStorage.removeItem("authState");
+      })
+      // Reset Session
+      .addCase(checkResetSession.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(checkResetSession.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.resetSession = action.payload.flag; // store backend flag
+      })
+      .addCase(checkResetSession.rejected, (state, action) => {
+        state.status = "failed";
+        state.resetSession = null;
+        state.error = action.payload;
       });
   },
 });

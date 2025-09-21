@@ -5,8 +5,13 @@ import Userprofile from "./Components/profile/dashboard.jsx";
 import UserRegister from "./Components/Signup/Signup.jsx";
 import DashboardLayout from "./Components/layouts/DashboardLayout.jsx";
 import ContactsPage from "./Components/Pages/Contacts/Contacts.jsx";
+import Companies from "./Components/Pages/Companies/Companies.jsx";
 import UserProfile from "./Components/profile/dashboard.jsx";
 import Dashboard from "./Components/layouts/Dashboard.jsx";
+import Recovery from "./Components/Login/Recovery.jsx";
+import Resetpassword from "./Components/Login/ResetPassword.jsx";
+import Opportunities from "./Components/Pages/Opportunities/Opportunities.jsx";
+import PrivateRoute from "./Middleware/PrivateRoutes.jsx";
 
 const router = createBrowserRouter([
   {
@@ -17,28 +22,52 @@ const router = createBrowserRouter([
     path: "/register",
     element: <UserRegister />,
   },
-  // {
-  //   path: "/userprofile",
-  //   element: (
-  //     <DashboardLayout>
-  //       <UserProfile />
-  //     </DashboardLayout>
-  //   )
-  // },
   {
-    path: "/Contacts",
+    path: "/recovery",
+    element: <Recovery />,
+  },
+  {
+    path: "/reset-password",
+    element: <Resetpassword />,
+  },
+  {
+    path: "/contacts",
     element: (
-      <DashboardLayout>
-        <ContactsPage />
-      </DashboardLayout>
+      <PrivateRoute>
+        <DashboardLayout>
+          <ContactsPage />
+        </DashboardLayout>
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: "/companies",
+    element: (
+      <PrivateRoute>
+        <DashboardLayout>
+          <Companies />
+        </DashboardLayout>
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: "/opportunities",
+    element: (
+      <PrivateRoute>
+        <DashboardLayout>
+          <Opportunities />
+        </DashboardLayout>
+      </PrivateRoute>
     ),
   },
   {
     path: "/dashboard",
     element: (
-      <DashboardLayout>
-        <Dashboard />
-      </DashboardLayout>
+      <PrivateRoute>
+        <DashboardLayout>
+          <Dashboard />
+        </DashboardLayout>
+      </PrivateRoute>
     ),
   },
 ]);

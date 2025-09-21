@@ -2,7 +2,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-const Dashboard = () => {
+const Companies = () => {
   const navigate = useNavigate();
 
   const goToContacts = () => {
@@ -22,4 +22,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default Companies;

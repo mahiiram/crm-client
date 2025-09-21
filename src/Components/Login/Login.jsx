@@ -101,22 +101,18 @@ function UserLogin() {
             >
               {showPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
             </button>
-            <p className="text-xs text-gray-500 mt-1">We'll never share your password with anyone else.</p>
+            <p className="text-xs text-gray-500 mt-2 ml-1">We'll never share your password with anyone else.</p>
           </div>
-          {/* <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-              Password
-            </label>
-            <input
-              type="password"
-              name="password"
-              placeholder="Enter Password"
-              className="w-full px-4 py-2 mt-1 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={form.password}
-              onChange={handleChange}
-            />
-            <p className="text-xs text-gray-500 mt-1">We'll never share your password with anyone else.</p>
-          </div> */}
+
+          <div className="button-div">
+            <p className="text-sm text-gray-600 mt-1 ml-1">
+              Forget Password?{" "}
+              <span className="text-sm text-blue-600 font-small">
+                <Link to="/recovery">Recover Now</Link>
+              </span>
+            </p>
+          </div>
+
           <div className="button-container" onMouseMove={handleMouseMove}>
             <button type="submit" className="liquid-button">
               <span className="liquid" style={{ left: cursorPosition.x, top: cursorPosition.y }} />

@@ -8,9 +8,7 @@ const DashboardLayout = ({ children }) => {
       <Sidebar />
       <div className="ml-56 min-h-screen flex flex-col bg-gray-50 ">
         <Navbar />
-        <div className="p-4 overflow-auto flex-1">
-          {children}
-        </div>
+        <div className="p-4 overflow-auto flex-1">{children}</div>
       </div>
     </div>
   );
