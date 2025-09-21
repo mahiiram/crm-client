@@ -154,7 +154,7 @@ const ContactsTable = ({ token }) => {
 
       <Box
         sx={{
-          height: "100%", // full height of parent
+          height: "450px", // full height of parent
           display: "flex",
           flexDirection: "column",
         }}
