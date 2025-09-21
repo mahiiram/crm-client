@@ -12,23 +12,40 @@ import Recovery from "./Components/Login/Recovery.jsx";
 import Resetpassword from "./Components/Login/ResetPassword.jsx";
 import Opportunities from "./Components/Pages/Opportunities/Opportunities.jsx";
 import PrivateRoute from "./Middleware/PrivateRoutes.jsx";
+import PublicRoute from "./Middleware/PublicRoute.jsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <UserLogin />,
+    element: (
+      <PublicRoute>
+        <UserLogin />
+      </PublicRoute>
+    ),
   },
   {
     path: "/register",
-    element: <UserRegister />,
+    element: (
+      <PublicRoute>
+        <UserRegister />
+      </PublicRoute>
+    ),
   },
   {
     path: "/recovery",
-    element: <Recovery />,
+    element: (
+      <PublicRoute>
+        <Recovery />
+      </PublicRoute>
+    ),
   },
   {
     path: "/reset-password",
-    element: <Resetpassword />,
+    element: (
+      <PublicRoute>
+        <Resetpassword />
+      </PublicRoute>
+    ),
   },
   {
     path: "/contacts",
@@ -40,6 +57,16 @@ const router = createBrowserRouter([
       </PrivateRoute>
     ),
   },
+  // {
+  //   path: "/contacts/:id",
+  //   element: (
+  //     <PrivateRoute>
+  //       <DashboardLayout>
+  //         <ContactsPage />
+  //       </DashboardLayout>
+  //     </PrivateRoute>
+  //   ),
+  // },
   {
     path: "/companies",
     element: (
@@ -50,6 +77,16 @@ const router = createBrowserRouter([
       </PrivateRoute>
     ),
   },
+  // {
+  //   path: "/companies/:id",
+  //   element: (
+  //     <PrivateRoute>
+  //       <DashboardLayout>
+  //         <Companies />
+  //       </DashboardLayout>
+  //     </PrivateRoute>
+  //   ),
+  // },
   {
     path: "/opportunities",
     element: (

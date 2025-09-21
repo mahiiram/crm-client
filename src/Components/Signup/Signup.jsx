@@ -119,7 +119,7 @@ function UserRegister() {
       )
       .then(() => {
         sessionStorage.setItem("email", form.email);
-        navigate("/userprofile");
+        navigate("/dashboard");
       })
       .catch((err) => {
         console.error("Registration error:", err);
