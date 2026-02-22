@@ -1,7 +1,7 @@
 // src/api/auth.js
 import axios from "axios";
 
-const API_BASE_URL = "https://crm-server-8y61.onrender.com/api/users"; //`${import.meta.env.VITE_API_URL}/api/users`;
+const API_BASE_URL = "https://boats-boring-andy-institutions.trycloudflare.com/api/users"; //`${import.meta.env.VITE_API_URL}/api/users`;
 
 /** Register user */
 export async function registerApi(credentials) {
