@@ -1,11 +1,11 @@
 // src/api/auth.js
-import axios from "axios";
-
-const API_BASE_URL = "https://boats-boring-andy-institutions.trycloudflare.com/api/users"; //`${import.meta.env.VITE_API_URL}/api/users`;
+// import axios from "axios";
+import api from "./axios";
+const API_BASE_URL = `${import.meta.env.VITE_API_URL}/api/users`;
 
 /** Register user */
 export async function registerApi(credentials) {
-  const { data } = await axios.post(`${API_BASE_URL}/signup`, {
+  const { data } = await api.post(`${API_BASE_URL}/signup`, {
     firstname: credentials.firstname,
     lastname: credentials.lastname,
     countryCode: credentials.countryCode,
@@ -23,7 +23,7 @@ export async function registerApi(credentials) {
 /** Login user */
 export async function loginApi(credentials) {
   console.log("credentials", credentials);
-  const { data } = await axios.post(`${API_BASE_URL}/login`, {
+  const { data } = await api.post(`${API_BASE_URL}/login`, {
     email: credentials.email,
     password: credentials.password,
   });
@@ -39,7 +39,7 @@ export async function generateOTP(email) {
   try {
     const {
       data: { code },
-    } = await axios.post(`${API_BASE_URL}/generateOTP`, { email });
+    } = await api.post(`${API_BASE_URL}/generateOTP`, { email });
 
     return code; // no need for Promise.resolve
   } catch (error) {
@@ -50,7 +50,7 @@ export async function generateOTP(email) {
 /** verify OTP */
 export async function verifyOTP({ code }) {
   try {
-    const { data, status } = await axios.get(`${API_BASE_URL}/verifyOTP`, {
+    const { data, status } = await api.get(`${API_BASE_URL}/verifyOTP`, {
       params: { code },
     });
     return { data, status };
@@ -59,14 +59,14 @@ export async function verifyOTP({ code }) {
   }
 }
 export const checkResetSessionApi = async () => {
-  const res = await axios.get(`${API_BASE_URL}/createResetSession`, {
+  const res = await api.get(`${API_BASE_URL}/createResetSession`, {
     withCredentials: true, // send cookies if backend uses sessions
   });
   return res.data; // returns { flag: true }
 };
 export async function resetPassword({ email, password }) {
   try {
-    const { data, status } = await axios.put(`${API_BASE_URL}/resetPassword`, {
+    const { data, status } = await api.put(`${API_BASE_URL}/resetPassword`, {
       email,
       password,
     });

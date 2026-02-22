@@ -16,6 +16,7 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { ArrowLeft } from "lucide-react";
+import { getContactById, deleteContact, updateContact } from "./contactApi";
 
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -32,17 +33,10 @@ const ContactDetails = () => {
   const [contact, setContact] = useState(null);
   const [loading, setLoading] = useState(true);
   const [openEdit, setOpenEdit] = useState(false);
-
-  useEffect(() => {
-    fetchContact();
-  }, [id]);
-
   const fetchContact = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/contacts/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await getContactById(id, token);
       setContact(res.data);
     } catch (err) {
       console.error("Error fetching contact:", err);
@@ -50,30 +44,66 @@ const ContactDetails = () => {
       setLoading(false);
     }
   };
-
   const handleDelete = async () => {
     if (!window.confirm("Are you sure you want to delete this contact?")) return;
     try {
-      await axios.delete(`${import.meta.env.VITE_API_URL}/api/contacts/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      navigate("/contacts"); // go back to contacts list after deletion
+      await deleteContact(id, token);
+      navigate("/contacts");
     } catch (err) {
       console.error("Error deleting contact:", err);
     }
   };
-
   const handleSave = async (updatedData) => {
     try {
-      await axios.put(`${import.meta.env.VITE_API_URL}/api/contacts/${id}`, updatedData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      fetchContact(); // refresh after edit
+      await updateContact(id, updatedData, token);
+      fetchContact();
       setOpenEdit(false);
     } catch (err) {
       console.error("Error updating contact:", err);
     }
   };
+
+  // useEffect(() => {
+  //   fetchContact();
+  // }, [id]);
+
+  // const fetchContact = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/contacts/${id}`, {
+  //       headers: { Authorization: `Bearer ${token}` },
+  //     });
+  //     setContact(res.data);
+  //   } catch (err) {
+  //     console.error("Error fetching contact:", err);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  // const handleDelete = async () => {
+  //   if (!window.confirm("Are you sure you want to delete this contact?")) return;
+  //   try {
+  //     await axios.delete(`${import.meta.env.VITE_API_URL}/api/contacts/${id}`, {
+  //       headers: { Authorization: `Bearer ${token}` },
+  //     });
+  //     navigate("/contacts"); // go back to contacts list after deletion
+  //   } catch (err) {
+  //     console.error("Error deleting contact:", err);
+  //   }
+  // };
+
+  // const handleSave = async (updatedData) => {
+  //   try {
+  //     await axios.put(`${import.meta.env.VITE_API_URL}/api/contacts/${id}`, updatedData, {
+  //       headers: { Authorization: `Bearer ${token}` },
+  //     });
+  //     fetchContact(); // refresh after edit
+  //     setOpenEdit(false);
+  //   } catch (err) {
+  //     console.error("Error updating contact:", err);
+  //   }
+  // };
 
   if (loading)
     return (
