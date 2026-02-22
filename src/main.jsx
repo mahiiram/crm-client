@@ -9,7 +9,7 @@ import "./index.css";
 createRoot(document.getElementById("root")).render(
   <Provider store={store}>
     <StrictMode>
-      <Toaster position="top-right" />
+      <Toaster position="top-right" toastOptions={{ duration: 2000 }} />
       <App />
     </StrictMode>
   </Provider>

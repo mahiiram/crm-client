@@ -34,17 +34,17 @@ const router = createBrowserRouter([
   {
     path: "/recovery",
     element: (
-      <PublicRoute>
+      //<PublicRoute>
         <Recovery />
-      </PublicRoute>
+     // </PublicRoute>
     ),
   },
   {
     path: "/reset-password",
     element: (
-      <PublicRoute>
+     // <PublicRoute>
         <Resetpassword />
-      </PublicRoute>
+     // </PublicRoute>
     ),
   },
   {
@@ -122,12 +122,5 @@ const router = createBrowserRouter([
 function App() {
   return <RouterProvider router={router} />;
 }
-// function App() {
-//   return (
-//     <div className="min-h-screen bg-gradient-to-r from-green-400 to-blue-500">
-//       <RouterProvider router={router} />
-//     </div>
-//   );
-// }
 
 export default App;

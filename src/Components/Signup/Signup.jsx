@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Toaster, toast } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { register } from "../../features/auth/authSlice.js";
 import PhoneInput from "react-phone-input-2";
@@ -129,7 +129,7 @@ function UserRegister() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-green-400 to-blue-500 px-4 py-6 rounded-lg px-4">
-      <Toaster position="top-right" reverseOrder={false} />
+      {/* <Toaster position="top-right" reverseOrder={false} /> */}
       <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg">
         <div className="text-center mb-6">
           <h6 className="text-3xl font-bold text-green-800">Register</h6>

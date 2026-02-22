@@ -22,7 +22,7 @@ export async function registerApi(credentials) {
 
 /** Login user */
 export async function loginApi(credentials) {
-  console.log("credentials", credentials);
+  // console.log("credentials", credentials);
   const { data } = await api.post(`${API_BASE_URL}/login`, {
     email: credentials.email,
     password: credentials.password,

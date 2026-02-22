@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Toaster, toast } from "react-hot-toast";
+// import { Toaster, toast } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "../../features/auth/authSlice.js";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
@@ -37,6 +38,30 @@ function UserLogin() {
     });
   };
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+
+  //   if (!form.email || !form.password) {
+  //     toast.error("Please fill in all fields");
+  //     return;
+  //   }
+
+  //   const loginPromise = dispatch(login(form)).unwrap();
+
+  //   toast
+  //     .promise(loginPromise, {
+  //       loading: "Logging in...",
+  //       success: <b>Login successful</b>,
+  //       error: (err) => <b>{err || "Registration failed"}</b>,
+  //     })
+  //     .then(() => {
+  //       sessionStorage.setItem("email", form.email);
+  //       navigate("/dashboard");
+  //     })
+  //     .catch((err) => {
+  //       console.error("Login failed:", err);
+  //     });
+  // };
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -45,26 +70,27 @@ function UserLogin() {
       return;
     }
 
-    const loginPromise = dispatch(login(form)).unwrap();
-    
-    toast
-      .promise(loginPromise, {
-        loading: "Logging in...",
-        success: <b>Login successful</b>,
-        error: (err) => <b>{err || "Registration failed"}</b>,
-      })
-      .then(() => {
-        sessionStorage.setItem("email", form.email);
-        navigate("/dashboard");
-      })
-      .catch((err) => {
-        console.error("Login failed:", err);
-      });
-  };
+    try {
+      toast.loading("Logging in...");
 
+      await dispatch(login(form)).unwrap();
+
+      toast.dismiss(); // remove loading
+      toast.success("Login successful");
+
+      sessionStorage.setItem("email", form.email);
+
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 1200);
+    } catch (err) {
+      toast.dismiss();
+      toast.error(err || "Login failed");
+    }
+  };
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-green-400 to-blue-500 px-4 py-6 rounded-lg px-4">
-      <Toaster position="top-right" reverseOrder={false} />
+      {/* <Toaster position="top-right" reverseOrder={false} /> */}
       <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg">
         <div className="text-center mb-6">
           <h6 className="text-3xl font-bold text-green-800">Login</h6>

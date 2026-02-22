@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Toaster, toast } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { generateOTP, verifyOTP } from "../../features/auth/auth";
 
 function Recovery() {
@@ -94,7 +94,6 @@ function Recovery() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-green-400 to-blue-500 px-4 py-6">
-      <Toaster position="top-right" reverseOrder={false} />
       <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg">
         <div className="text-center mb-6">
           <h6 className="text-3xl font-bold text-green-800">Password Recovery</h6>
