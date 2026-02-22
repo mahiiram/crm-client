@@ -1,26 +1,26 @@
 // App.jsx
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import UserLogin from "./Components/Login/Login.jsx";
-import Userprofile from "./Components/profile/dashboard.jsx";
 import UserRegister from "./Components/Signup/Signup.jsx";
 import DashboardLayout from "./Components/layouts/DashboardLayout.jsx";
 import ContactsPage from "./Components/Pages/Contacts/Contacts.jsx";
 import Companies from "./Components/Pages/Companies/Companies.jsx";
-import UserProfile from "./Components/profile/dashboard.jsx";
+
 import Dashboard from "./Components/layouts/Dashboard.jsx";
 import Recovery from "./Components/Login/Recovery.jsx";
 import Resetpassword from "./Components/Login/ResetPassword.jsx";
 import Opportunities from "./Components/Pages/Opportunities/Opportunities.jsx";
 import PrivateRoute from "./Middleware/PrivateRoutes.jsx";
 import PublicRoute from "./Middleware/PublicRoute.jsx";
+import ContactDetails from "./Components/Pages/Contacts/Contactdetails.jsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: (
-      <PublicRoute>
-        <UserLogin />
-      </PublicRoute>
+      // <PublicRoute>
+      <UserLogin />
+      // </PublicRoute>
     ),
   },
   {
@@ -53,6 +53,16 @@ const router = createBrowserRouter([
       <PrivateRoute>
         <DashboardLayout>
           <ContactsPage />
+        </DashboardLayout>
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: "/contact/:id",
+    element: (
+      <PrivateRoute>
+        <DashboardLayout>
+          <ContactDetails />
         </DashboardLayout>
       </PrivateRoute>
     ),

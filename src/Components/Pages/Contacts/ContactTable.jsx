@@ -43,7 +43,12 @@ const ContactsTable = ({ token }) => {
 
   const navigate = useNavigate();
 
-  // Fetch contacts
+  const [totalContacts, setTotalContacts] = useState(0);
+
+  useEffect(() => {
+    setSelectedContacts([]);
+  }, [currentPage, pageSize]);
+
   const fetchContacts = async () => {
     setLoading(true);
     try {
@@ -53,16 +58,16 @@ const ContactsTable = ({ token }) => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      const contactsData = res.data.contacts || [];
-      setContacts(contactsData);
-      setFiltered(contactsData);
+
+      setContacts(res.data.contacts || []);
+      setFiltered(res.data.contacts || []); // optional, if you use filtered for search
+      setTotalContacts(res.data.total || 0);
     } catch (err) {
       console.error("Error fetching contacts:", err);
     } finally {
       setLoading(false);
     }
   };
-  console.log("contacts", token);
 
   useEffect(() => {
     fetchContacts();
@@ -79,11 +84,9 @@ const ContactsTable = ({ token }) => {
       console.error("Error creating contact:", err);
     }
   };
+  const paginatedData = contacts;
+  const totalPages = Math.ceil(totalContacts / pageSize);
 
-  const totalPages = Math.ceil(filtered.length / pageSize);
-  const paginatedData = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
-
-  // Sorting by date
   const handleFilterByDate = (field) => {
     const sorted = [...filtered].sort((a, b) => new Date(b[field]) - new Date(a[field]));
     setFiltered(sorted);
@@ -101,9 +104,6 @@ const ContactsTable = ({ token }) => {
   const handleSelectOne = (id) => {
     setSelectedContacts((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
   };
-
-  // Batch delete
-  console.log("selectedcontact", selectedContacts);
   const handleDelete = async () => {
     try {
       await axios.delete(`${import.meta.env.VITE_API_URL}/api/contacts/batch-delete`, {
@@ -128,9 +128,7 @@ const ContactsTable = ({ token }) => {
           Create Contact
         </Button>
       </Box>
-
       <CreateContactModal open={openCreate} onClose={() => setOpenCreate(false)} onSave={handleSave} />
-
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
         <Box display="flex" gap={1}>
           <Button variant="outlined" onClick={() => handleFilterByDate("createdAt")} startIcon={<Filter size={14} />}>
@@ -152,73 +150,91 @@ const ContactsTable = ({ token }) => {
         )}
       </Box>
 
-      <Box
+      {/* <Box
         sx={{
-          height: "450px", // full height of parent
+          height: "500px", // full height of parent
           display: "flex",
           flexDirection: "column",
+      > */}
+      <Box
+        sx={{
+          height: "calc(90vh - 180px)", // adjust based on header height
+          overflow: "auto",
         }}
       >
+        {/* Your Table here */}
+
         <TableContainer
           component={Paper}
           sx={{
-            flex: 1, // takes remaining height
-            overflowY: "auto", // scroll when content overflows
+            flex: 1,
+            overflowY: "auto",
+            maxHeight: "calc(100vh - 260px)", // ⭐ IMPORTANT
+            borderRadius: 3,
+            boxShadow: 2,
+            border: "1px solid #e0e0e0",
           }}
-          //sx={{ maxHeight: 400 }}
         >
-          <Table stickyHeader size="small">
+          <Table stickyHeader size="medium">
             <TableHead>
-              <TableRow>
+              <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
                 <TableCell padding="checkbox">
                   <Checkbox
                     checked={selectedContacts.length === paginatedData.length && paginatedData.length > 0}
                     onChange={handleSelectAll}
+                    sx={{ color: "primary.main" }}
                   />
                 </TableCell>
-                <TableCell>Name</TableCell>
-                <TableCell>Email</TableCell>
-                <TableCell>Phone</TableCell>
-                <TableCell>Position</TableCell>
-                <TableCell>Created At</TableCell>
-                <TableCell>Updated At</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>Name</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>Email</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>Phone</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>Position</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>Created At</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>Updated At</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {loading ? (
                 <TableRow>
                   <TableCell colSpan={7} align="center">
-                    <CircularProgress size={24} />
+                    <CircularProgress size={28} />
                   </TableCell>
                 </TableRow>
               ) : paginatedData.length > 0 ? (
-                paginatedData.map((contact) => (
-                  <TableRow
-                    key={contact._id}
-                    hover
-                    onClick={(e) => {
-                      // prevent row click if checkbox clicked
-                      if (e.target.type !== "checkbox") navigate(`/contact/${contact._id}`);
-                    }}
-                    sx={{ cursor: "pointer" }}
-                  >
-                    <TableCell padding="checkbox">
-                      <Checkbox
-                        checked={selectedContacts.includes(contact._id)}
-                        onChange={() => handleSelectOne(contact._id)}
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      {contact.firstName} {contact.lastName}
-                    </TableCell>
-                    <TableCell>{contact.email || "--"}</TableCell>
-                    <TableCell>{contact.phone || "--"}</TableCell>
-                    <TableCell>{contact.position || "--"}</TableCell>
-                    <TableCell>{dayjs(contact.createdAt).format("MMM D, YYYY h:mm A")}</TableCell>
-                    <TableCell>{dayjs(contact.updatedAt).format("MMM D, YYYY h:mm A")}</TableCell>
-                  </TableRow>
-                ))
+                paginatedData.map((contact, index) => {
+                  const isSelected = selectedContacts.includes(contact._id);
+                  return (
+                    <TableRow
+                      key={contact._id}
+                      hover
+                      onClick={(e) => {
+                        if (e.target.type !== "checkbox") navigate(`/contact/${contact._id}`);
+                      }}
+                      sx={{
+                        cursor: "pointer",
+                        transition: "0.2s all",
+                        backgroundColor: isSelected ? "primary.lighter" : index % 2 === 0 ? "#fcfcfc" : "white",
+                        "&:hover": {
+                          backgroundColor: isSelected ? "primary.lighter" : "#f0f4ff",
+                          boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
+                          transform: "translateY(-1px)",
+                        },
+                      }}
+                    >
+                      <TableCell padding="checkbox" onClick={(e) => e.stopPropagation()}>
+                        <Checkbox checked={isSelected} onChange={() => handleSelectOne(contact._id)} color="primary" />
+                      </TableCell>
+                      <TableCell sx={{ fontWeight: 500, color: "#333" }}>
+                        {contact.firstName} {contact.lastName}
+                      </TableCell>
+                      <TableCell>{contact.email || "--"}</TableCell>
+                      <TableCell>{contact.phone || "--"}</TableCell>
+                      <TableCell>{contact.position || "--"}</TableCell>
+                      <TableCell>{dayjs(contact.createdAt).format("MMM D, YYYY h:mm A")}</TableCell>
+                      <TableCell>{dayjs(contact.updatedAt).format("MMM D, YYYY h:mm A")}</TableCell>
+                    </TableRow>
+                  );
+                })
               ) : (
                 <TableRow>
                   <TableCell colSpan={7} align="center">
@@ -239,21 +255,16 @@ const ContactsTable = ({ token }) => {
         <Box display="flex" alignItems="center" gap={1}>
           <Button
             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-            variant="outlined"
-            size="small"
+            disabled={currentPage === 1 || totalContacts === 0}
           >
             Prev
           </Button>
+
           <Typography>
             Page {currentPage} of {totalPages}
           </Typography>
-          <Button
-            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-            disabled={currentPage === totalPages}
-            variant="outlined"
-            size="small"
-          >
+
+          <Button onClick={() => setCurrentPage((prev) => prev + 1)} disabled={currentPage * pageSize >= totalContacts}>
             Next
           </Button>
         </Box>
@@ -264,7 +275,7 @@ const ContactsTable = ({ token }) => {
             label="Page size"
             onChange={(e) => {
               setPageSize(Number(e.target.value));
-              setCurrentPage(1);
+              setCurrentPage(1); // reset to first page
             }}
           >
             {PAGE_SIZE_OPTIONS.map((size) => (

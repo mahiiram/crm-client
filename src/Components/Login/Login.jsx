@@ -9,7 +9,7 @@ function UserLogin() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { token, status } = useSelector((state) => state.auth);
-  console.log("token", token);
+  // console.log("token", token);
   // useEffect(() => {
   //   if (token) {
   //     navigate("/dashboard");
@@ -46,7 +46,7 @@ function UserLogin() {
     }
 
     const loginPromise = dispatch(login(form)).unwrap();
-
+    
     toast
       .promise(loginPromise, {
         loading: "Logging in...",
