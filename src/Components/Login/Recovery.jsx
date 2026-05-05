@@ -31,6 +31,7 @@ function Recovery() {
 
   const handleGenerateOTP = async (e) => {
     e.preventDefault();
+
     if (!form.email) {
       toast.error("Please enter your email");
       return;
@@ -38,20 +39,35 @@ function Recovery() {
 
     try {
       setLoading(true);
+
       const OTP = await generateOTP(form.email);
-      setLoading(false);
+
       if (OTP) {
         toast.success("OTP has been sent to your email!");
-        sessionStorage.setItem("email", form.email); // save for OTP verification
-        setForm((prev) => ({ ...prev, email: "" })); // clear input
-        setStep(2); // move to OTP step
+
+        // Save email for verification step
+        sessionStorage.setItem("email", form.email);
+
+        // Clear email field
+        setForm((prev) => ({
+          ...prev,
+          email: "",
+        }));
+
+        // Move to OTP verification step
+        setStep(2);
       } else {
-        setLoading(false);
         toast.error("Problem while generating OTP!");
       }
     } catch (err) {
-      setForm((prev) => ({ ...prev, email: "" }));
-      toast.error(err);
+      setForm((prev) => ({
+        ...prev,
+        email: "",
+      }));
+
+      toast.error(err?.response?.data?.error || err.message || "Something went wrong");
+    } finally {
+      setLoading(false);
     }
   };
 
