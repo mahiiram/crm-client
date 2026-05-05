@@ -53,7 +53,7 @@ const ContactsTable = ({ token }) => {
     setLoading(true);
     try {
       const res = await axios.get(
-        `${import.meta.env.VITE_API_URL}/api/contacts?page=${currentPage}&limit=${pageSize}`,
+        `${import.meta.env.VITE_API_URL_LOCAL}/api/contacts?page=${currentPage}&limit=${pageSize}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -76,7 +76,7 @@ const ContactsTable = ({ token }) => {
   // Handle contact creation
   const handleSave = async (contactData) => {
     try {
-      await axios.post(`${import.meta.env.VITE_API_URL}/api/contacts/`, contactData, {
+      await axios.post(`${import.meta.env.VITE_API_URL_LOCAL}/api/contacts/`, contactData, {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchContacts(); // refresh after create
@@ -106,7 +106,7 @@ const ContactsTable = ({ token }) => {
   };
   const handleDelete = async () => {
     try {
-      await axios.delete(`${import.meta.env.VITE_API_URL}/api/contacts/batch-delete`, {
+      await axios.delete(`${import.meta.env.VITE_API_URL_LOCAL}/api/contacts/batch-delete`, {
         data: { ids: selectedContacts },
         headers: { Authorization: `Bearer ${token}` },
       });

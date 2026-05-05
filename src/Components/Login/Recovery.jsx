@@ -66,7 +66,6 @@ function Recovery() {
       let { status } = await verifyOTP({ email, code: form.otp });
       if (status === 201) {
         toast.success("OTP verified successfully");
-        sessionStorage.removeItem("email"); // clear stored email after success
         navigate("/reset-password");
       }
     } catch (error) {

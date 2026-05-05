@@ -65,21 +65,21 @@ const searchCompaniesApi = async (token, query = "", page = 1, limit = 10) => {
 
 // ⭐ Get single contact
 export const getContactById = (id, token) => {
-  return axios.get(`${BASE_URL}/api/contacts/${id}`, {
+  return axios.get(`${BASE_URL}/api/companies/${id}`, {
     headers: authHeaders(token),
   });
 };
 
 // ⭐ Delete contact
 export const deleteContact = (id, token) => {
-  return axios.delete(`${BASE_URL}/api/contacts/${id}`, {
+  return axios.delete(`${BASE_URL}/api/companies/${id}`, {
     headers: authHeaders(token),
   });
 };
 
 // ⭐ Update contact
 export const updateContact = (id, data, token) => {
-  return axios.put(`${BASE_URL}/api/contacts/${id}`, data, {
+  return axios.put(`${BASE_URL}/api/companies/${id}`, data, {
     headers: authHeaders(token),
   });
 };
@@ -98,28 +98,12 @@ export const listCompanies = async (token, query = "") => {
 
 // ⭐ Create a company from typed label
 export const createCompany = async (token, name) => {
-  const response = await axios.post(
-    `${BASE_URL}/api/companies/`,
-    {
+  const response = await requestWithFallback("post", COMPANY_ENDPOINTS, token, {
+    data: {
       name,
-      industry: "",
-      website: "",
-      domain: "",
-      phone: "",
-      email: "",
-      address: {
-        street: "",
-        city: "",
-        state: "",
-        zip: "",
-        country: "",
-      },
-      status: "Active",
+      companyName: name,
     },
-    {
-      headers: authHeaders(token),
-    }
-  );
+  });
   return response.data?.company || response.data?.data || response.data;
 };
 
