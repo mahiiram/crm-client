@@ -39,12 +39,9 @@ function Recovery() {
 
     try {
       setLoading(true);
-
       const OTP = await generateOTP(form.email);
-
       if (OTP) {
         toast.success("OTP has been sent to your email!");
-
         // Save email for verification step
         sessionStorage.setItem("email", form.email);
 

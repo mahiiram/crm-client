@@ -29,21 +29,17 @@ import { useParams, useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import { useSelector } from "react-redux";
 import { toast } from "react-hot-toast";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 
-const TABS = ["Activities", "Notes", "Emails", "Associations"];
+const TABS = ["Activities", "Notes", "Associations"];
 const OBJECT_ID_REGEX = /^[a-fA-F0-9]{24}$/;
 
 const toOption = (entity) => {
   if (!entity) return null;
   const id = entity._id || entity.id || "";
   const label =
-    entity.name ||
-    entity.companyName ||
-    entity.opportunityName ||
-    entity.title ||
-    entity.label ||
-    entity.email ||
-    id;
+    entity.name || entity.companyName || entity.opportunityName || entity.title || entity.label || entity.email || id;
 
   if (!id) return null;
   return { id, label, raw: entity };
@@ -81,12 +77,14 @@ const ContactDetails = () => {
   const [error, setError] = useState("");
   const [companySearchLoading, setCompanySearchLoading] = useState(false);
   const [opportunitySearchLoading, setOpportunitySearchLoading] = useState(false);
-
   const [companyOptions, setCompanyOptions] = useState([]);
   const [opportunityOptions, setOpportunityOptions] = useState([]);
   const [companyInput, setCompanyInput] = useState("");
   const [opportunityInput, setOpportunityInput] = useState("");
-
+  const [sortOrder, setSortOrder] = useState({
+    createdAt: "desc",
+    updatedAt: "desc",
+  });
   const [draft, setDraft] = useState({
     firstName: "",
     lastName: "",
@@ -112,7 +110,9 @@ const ContactDetails = () => {
     notes: record?.notes || "",
     emailLogin: record?.emailLogin || record?.email_login || "",
     opportunityId: resolveAssociationId(record?.opportunity || record?.associatedOpportunity || record?.opportunities),
-    opportunityLabel: resolveAssociationLabel(record?.opportunity || record?.associatedOpportunity || record?.opportunities),
+    opportunityLabel: resolveAssociationLabel(
+      record?.opportunity || record?.associatedOpportunity || record?.opportunities
+    ),
   });
 
   const fullName = `${contact?.firstName || ""} ${contact?.lastName || ""}`.trim();
@@ -214,7 +214,12 @@ const ContactDetails = () => {
   const selectedCompany = useMemo(() => {
     if (!draft.companyId && !draft.companyLabel) return null;
     if (draft.companyId) {
-      return companyOptions.find((option) => option.id === draft.companyId) || { id: draft.companyId, label: draft.companyLabel || draft.companyId };
+      return (
+        companyOptions.find((option) => option.id === draft.companyId) || {
+          id: draft.companyId,
+          label: draft.companyLabel || draft.companyId,
+        }
+      );
     }
     return { id: "", label: draft.companyLabel };
   }, [draft.companyId, draft.companyLabel, companyOptions]);
@@ -223,8 +228,10 @@ const ContactDetails = () => {
     if (!draft.opportunityId && !draft.opportunityLabel) return null;
     if (draft.opportunityId) {
       return (
-        opportunityOptions.find((option) => option.id === draft.opportunityId) ||
-        { id: draft.opportunityId, label: draft.opportunityLabel || draft.opportunityId }
+        opportunityOptions.find((option) => option.id === draft.opportunityId) || {
+          id: draft.opportunityId,
+          label: draft.opportunityLabel || draft.opportunityId,
+        }
       );
     }
     return { id: "", label: draft.opportunityLabel };
@@ -320,7 +327,8 @@ const ContactDetails = () => {
 
       if ("notes" in (contact || {})) payload.notes = draft.notes;
       if ("emailLogin" in (contact || {}) || "email_login" in (contact || {})) payload.emailLogin = draft.emailLogin;
-      if ("opportunity" in (contact || {}) || "opportunities" in (contact || {})) payload.opportunity = draft.opportunityId || null;
+      if ("opportunity" in (contact || {}) || "opportunities" in (contact || {}))
+        payload.opportunity = draft.opportunityId || null;
 
       await updateContact(id, payload, token);
       setIsEditing(false);
@@ -350,6 +358,8 @@ const ContactDetails = () => {
     return [];
   }, [contact]);
 
+  
+
   const companyAssociation = selectedCompany?.label || draft.companyLabel || "--";
   const opportunityAssociation = selectedOpportunity?.label || draft.opportunityLabel || "--";
 
@@ -373,7 +383,9 @@ const ContactDetails = () => {
     );
 
   const companyHasTypedLabel = companyInput.trim().length > 0;
-  const companyExistsByName = companyOptions.some((option) => option.label.toLowerCase() === companyInput.trim().toLowerCase());
+  const companyExistsByName = companyOptions.some(
+    (option) => option.label.toLowerCase() === companyInput.trim().toLowerCase()
+  );
   const canCreateCompany = isEditing && companyHasTypedLabel && !companyExistsByName;
 
   return (
@@ -385,10 +397,14 @@ const ContactDetails = () => {
         backgroundColor: "#f3f4f6",
       }}
     >
-      <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", lg: "30% 70%" }, gap: 2, height: "100%" }}>
+      <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", lg: "35% 65%" }, gap: 2, height: "100%" }}>
         <Paper sx={{ p: 2, borderRadius: 3, border: "1px solid #e5e7eb", overflowY: "auto" }}>
           <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-            <Button startIcon={<ArrowLeft size={15} />} onClick={() => navigate("/contacts")} sx={{ textTransform: "none" }}>
+            <Button
+              startIcon={<ArrowLeft size={15} />}
+              onClick={() => navigate("/contacts")}
+              sx={{ textTransform: "none" }}
+            >
               Back
             </Button>
             <Stack direction="row" spacing={1}>
@@ -406,7 +422,13 @@ const ContactDetails = () => {
               >
                 {isEditing ? (saving ? "Saving..." : "Save") : "Edit"}
               </Button>
-              <Button variant="outlined" color="error" startIcon={<DeleteIcon />} onClick={handleDelete} sx={{ textTransform: "none" }}>
+              <Button
+                variant="outlined"
+                color="error"
+                startIcon={<DeleteIcon />}
+                onClick={handleDelete}
+                sx={{ textTransform: "none" }}
+              >
                 Delete
               </Button>
             </Stack>
@@ -495,18 +517,18 @@ const ContactDetails = () => {
               getOptionLabel={(option) => (typeof option === "string" ? option : option?.label || "")}
               isOptionEqualToValue={(option, value) => option.id === value.id}
               disabled={!isEditing || creatingCompany}
-                loading={companySearchLoading}
-                filterOptions={(options) => options}
-                noOptionsText={companySearchLoading ? "Searching..." : "No company found"}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Company"
-                    size="small"
-                    helperText={isEditing ? "Type company name to search. Create if not found." : ""}
-                  />
-                )}
-              />
+              loading={companySearchLoading}
+              filterOptions={(options) => options}
+              noOptionsText={companySearchLoading ? "Searching..." : "No company found"}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Company"
+                  size="small"
+                  helperText={isEditing ? "Type company name to search. Create if not found." : ""}
+                />
+              )}
+            />
             {canCreateCompany && (
               <Button
                 variant="outlined"
@@ -519,11 +541,11 @@ const ContactDetails = () => {
               </Button>
             )}
 
-              <Autocomplete
-                options={opportunityOptions}
-                value={selectedOpportunity}
-                inputValue={opportunityInput}
-                onInputChange={(_, value) => setOpportunityInput(value)}
+            <Autocomplete
+              options={opportunityOptions}
+              value={selectedOpportunity}
+              inputValue={opportunityInput}
+              onInputChange={(_, value) => setOpportunityInput(value)}
               onChange={(_, option) => {
                 if (!option) {
                   setDraft((prev) => ({ ...prev, opportunityId: "", opportunityLabel: "" }));
@@ -532,21 +554,21 @@ const ContactDetails = () => {
                 setDraft((prev) => ({ ...prev, opportunityId: option.id, opportunityLabel: option.label }));
                 setOpportunityInput(option.label);
               }}
-                getOptionLabel={(option) => option?.label || ""}
-                isOptionEqualToValue={(option, value) => option.id === value.id}
-                disabled={!isEditing}
-                loading={opportunitySearchLoading}
-                filterOptions={(options) => options}
-                noOptionsText={opportunitySearchLoading ? "Searching..." : "No opportunity found"}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Opportunity"
-                    size="small"
-                    helperText={isEditing ? "Type opportunity name to search and select." : ""}
-                  />
-                )}
-              />
+              getOptionLabel={(option) => option?.label || ""}
+              isOptionEqualToValue={(option, value) => option.id === value.id}
+              disabled={!isEditing}
+              loading={opportunitySearchLoading}
+              filterOptions={(options) => options}
+              noOptionsText={opportunitySearchLoading ? "Searching..." : "No opportunity found"}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Opportunity"
+                  size="small"
+                  helperText={isEditing ? "Type opportunity name to search and select." : ""}
+                />
+              )}
+            />
           </Stack>
 
           <Divider sx={{ my: 2 }} />
@@ -640,7 +662,7 @@ const ContactDetails = () => {
             </Paper>
           )}
 
-          {activeTab === "Emails" && (
+          {/* {activeTab === "Emails" && (
             <Paper sx={{ p: 2, borderRadius: 3, border: "1px solid #e5e7eb" }}>
               <Typography variant="h6" fontWeight={700} mb={1.5}>
                 Email Details
@@ -662,7 +684,7 @@ const ContactDetails = () => {
                 />
               </Stack>
             </Paper>
-          )}
+          )} */}
 
           {activeTab === "Associations" && (
             <Paper sx={{ p: 2, borderRadius: 3, border: "1px solid #e5e7eb" }}>

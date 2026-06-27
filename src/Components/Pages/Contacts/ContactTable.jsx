@@ -27,7 +27,8 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import CreateContactModal from "./CreateContactModal";
-
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 const PAGE_SIZE_OPTIONS = [25, 50, 100];
 
 const ContactsTable = ({ token }) => {
@@ -44,7 +45,8 @@ const ContactsTable = ({ token }) => {
   const navigate = useNavigate();
 
   const [totalContacts, setTotalContacts] = useState(0);
-
+  const [orderBy, setOrderBy] = useState("createdAt");
+  const [order, setOrder] = useState("desc");
   useEffect(() => {
     setSelectedContacts([]);
   }, [currentPage, pageSize]);
@@ -53,7 +55,9 @@ const ContactsTable = ({ token }) => {
     setLoading(true);
     try {
       const res = await axios.get(
-        `${import.meta.env.VITE_API_URL_PRODUCTION}/api/contacts?page=${currentPage}&limit=${pageSize}`,
+        `${
+          import.meta.env.VITE_API_URL
+        }/api/contacts?page=${currentPage}&limit=${pageSize}&orderBy=${orderBy}&order=${order}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -69,14 +73,16 @@ const ContactsTable = ({ token }) => {
     }
   };
 
+  // useEffect(() => {
+  //   fetchContacts();
+  // }, [currentPage, pageSize]);
   useEffect(() => {
     fetchContacts();
-  }, [currentPage, pageSize]);
-
+  }, [currentPage, pageSize, orderBy, order]);
   // Handle contact creation
   const handleSave = async (contactData) => {
     try {
-      await axios.post(`${import.meta.env.VITE_API_URL_PRODUCTION}/api/contacts/`, contactData, {
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/contacts/`, contactData, {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchContacts(); // refresh after create
@@ -106,7 +112,7 @@ const ContactsTable = ({ token }) => {
   };
   const handleDelete = async () => {
     try {
-      await axios.delete(`${import.meta.env.VITE_API_URL_PRODUCTION}/api/contacts/batch-delete`, {
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/contacts/batch-delete`, {
         data: { ids: selectedContacts },
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -118,18 +124,24 @@ const ContactsTable = ({ token }) => {
     }
   };
 
+ const handleSort = (field, sortOrder) => {
+   setOrderBy(field);
+   setOrder(sortOrder);
+   setCurrentPage(1);
+ };
+
   return (
     <Box>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-        <Typography variant="h5" fontWeight="bold">
-          Contacts
+        <Typography variant="h6" fontWeight="bold" color="green">
+          CONTACTS
         </Typography>
         <Button variant="contained" color="success" startIcon={<Plus size={16} />} onClick={() => setOpenCreate(true)}>
           Create Contact
         </Button>
       </Box>
       <CreateContactModal open={openCreate} onClose={() => setOpenCreate(false)} onSave={handleSave} />
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+      {/* <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
         <Box display="flex" gap={1}>
           <Button variant="outlined" onClick={() => handleFilterByDate("createdAt")} startIcon={<Filter size={14} />}>
             Created Date
@@ -148,7 +160,7 @@ const ContactsTable = ({ token }) => {
             Delete ({selectedContacts.length})
           </Button>
         )}
-      </Box>
+      </Box> */}
 
       {/* <Box
         sx={{
@@ -189,8 +201,50 @@ const ContactsTable = ({ token }) => {
                 <TableCell sx={{ fontWeight: 600 }}>Email</TableCell>
                 <TableCell sx={{ fontWeight: 600 }}>Phone</TableCell>
                 <TableCell sx={{ fontWeight: 600 }}>Position</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Created At</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Updated At</TableCell>
+                {/* <TableCell sx={{ fontWeight: 600 }}>Created At</TableCell> */}
+                <TableCell sx={{ fontWeight: 600 }}>
+                  <Box display="flex" alignItems="center" gap={0.5}>
+                    Created At
+                    <ArrowUpwardIcon
+                      onClick={() => handleSort("createdAt", "asc")}
+                      sx={{
+                        fontSize: 14,
+                        cursor: "pointer",
+                        color: "green",
+                      }}
+                    />
+                    <ArrowDownwardIcon
+                      onClick={() => handleSort("createdAt", "desc")}
+                      sx={{
+                        fontSize: 14,
+                        cursor: "pointer",
+                        color: "red",
+                      }}
+                    />
+                  </Box>
+                </TableCell>
+                {/* <TableCell sx={{ fontWeight: 600 }}>Updated At</TableCell> */}
+                <TableCell sx={{ fontWeight: 600 }}>
+                  <Box display="flex" alignItems="center" gap={0.5}>
+                    Updated At
+                    <ArrowUpwardIcon
+                      onClick={() => handleSort("updatedAt", "asc")}
+                      sx={{
+                        fontSize: 14,
+                        cursor: "pointer",
+                        color: "green",
+                      }}
+                    />
+                    <ArrowDownwardIcon
+                      onClick={() => handleSort("updatedAt", "desc")}
+                      sx={{
+                        fontSize: 14,
+                        cursor: "pointer",
+                        color: "red",
+                      }}
+                    />
+                  </Box>
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
