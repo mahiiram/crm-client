@@ -124,11 +124,11 @@ const ContactsTable = ({ token }) => {
     }
   };
 
- const handleSort = (field, sortOrder) => {
-   setOrderBy(field);
-   setOrder(sortOrder);
-   setCurrentPage(1);
- };
+  const handleSort = (field, sortOrder) => {
+    setOrderBy(field);
+    setOrder(sortOrder);
+    setCurrentPage(1);
+  };
 
   return (
     <Box>
