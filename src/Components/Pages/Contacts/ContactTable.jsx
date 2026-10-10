@@ -60,7 +60,7 @@ const ContactsTable = ({ token }) => {
         }/api/contacts?page=${currentPage}&limit=${pageSize}&orderBy=${orderBy}&order=${order}`,
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
 
       setContacts(res.data.contacts || []);
@@ -124,11 +124,11 @@ const ContactsTable = ({ token }) => {
     }
   };
 
- const handleSort = (field, sortOrder) => {
-   setOrderBy(field);
-   setOrder(sortOrder);
-   setCurrentPage(1);
- };
+  const handleSort = (field, sortOrder) => {
+    setOrderBy(field);
+    setOrder(sortOrder);
+    setCurrentPage(1);
+  };
 
   return (
     <Box>
