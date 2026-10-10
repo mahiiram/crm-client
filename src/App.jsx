@@ -13,6 +13,8 @@ import Opportunities from "./Components/Pages/Opportunities/Opportunities.jsx";
 import PrivateRoute from "./Middleware/PrivateRoutes.jsx";
 import PublicRoute from "./Middleware/PublicRoute.jsx";
 import ContactDetails from "./Components/Pages/Contacts/Contactdetails.jsx";
+import CompanyDetails from "./Components/Pages/Companies/CompanyDetails.jsx";
+import OpportunityDetails from "./Components/Pages/Opportunities/OpportunityDetails.jsx";
 
 const router = createBrowserRouter([
   {
@@ -87,6 +89,16 @@ const router = createBrowserRouter([
       </PrivateRoute>
     ),
   },
+  {
+    path: "/company/:id",
+    element: (
+      <PrivateRoute>
+        <DashboardLayout>
+          <CompanyDetails />
+        </DashboardLayout>
+      </PrivateRoute>
+    ),
+  },
   // {
   //   path: "/companies/:id",
   //   element: (
@@ -103,6 +115,16 @@ const router = createBrowserRouter([
       <PrivateRoute>
         <DashboardLayout>
           <Opportunities />
+        </DashboardLayout>
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: "/opportunity/:id",
+    element: (
+      <PrivateRoute>
+        <DashboardLayout>
+          <OpportunityDetails />
         </DashboardLayout>
       </PrivateRoute>
     ),
