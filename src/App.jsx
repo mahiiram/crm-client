@@ -5,6 +5,7 @@ import UserRegister from "./Components/Signup/Signup.jsx";
 import DashboardLayout from "./Components/layouts/DashboardLayout.jsx";
 import ContactsPage from "./Components/Pages/Contacts/Contacts.jsx";
 import Companies from "./Components/Pages/Companies/Companies.jsx";
+import CompanyDetails from "./Components/Pages/Companies/CompanyDetails.jsx";
 
 import Dashboard from "./Components/layouts/Dashboard.jsx";
 import Recovery from "./Components/Login/Recovery.jsx";
@@ -38,16 +39,16 @@ const router = createBrowserRouter([
     path: "/recovery",
     element: (
       //<PublicRoute>
-        <Recovery />
-     // </PublicRoute>
+      <Recovery />
+      // </PublicRoute>
     ),
   },
   {
     path: "/reset-password",
     element: (
-     // <PublicRoute>
-        <Resetpassword />
-     // </PublicRoute>
+      // <PublicRoute>
+      <Resetpassword />
+      // </PublicRoute>
     ),
   },
   {
@@ -116,6 +117,16 @@ const router = createBrowserRouter([
       <PrivateRoute>
         <DashboardLayout>
           <Opportunities />
+        </DashboardLayout>
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: "/opportunity/:id",
+    element: (
+      <PrivateRoute>
+        <DashboardLayout>
+          <OpportunityDetails />
         </DashboardLayout>
       </PrivateRoute>
     ),
