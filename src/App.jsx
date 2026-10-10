@@ -10,6 +10,7 @@ import Dashboard from "./Components/layouts/Dashboard.jsx";
 import Recovery from "./Components/Login/Recovery.jsx";
 import Resetpassword from "./Components/Login/ResetPassword.jsx";
 import Opportunities from "./Components/Pages/Opportunities/Opportunities.jsx";
+import OpportunityDetails from "./Components/Pages/Opportunities/OpportunityDetails.jsx";
 import PrivateRoute from "./Middleware/PrivateRoutes.jsx";
 import PublicRoute from "./Middleware/PublicRoute.jsx";
 import ContactDetails from "./Components/Pages/Contacts/Contactdetails.jsx";
@@ -85,6 +86,16 @@ const router = createBrowserRouter([
       <PrivateRoute>
         <DashboardLayout>
           <Companies />
+        </DashboardLayout>
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: "/company/:id",
+    element: (
+      <PrivateRoute>
+        <DashboardLayout>
+          <CompanyDetails />
         </DashboardLayout>
       </PrivateRoute>
     ),
